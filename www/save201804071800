@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: content: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <script src="components/loader.js"></script>
+    <link rel="stylesheet" href="components/loader.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+ons.ready(function(){
+    var log = function(message){
+        if (typeof message == "object") message = JSON.stringify(message);
+        $("#log").append(message + "<br />");
+    };
+    //setIntervalを使っているのは「scanを6秒おきに繰り返す」という意味
+    setInterval(function(){
+//ble.scan (スキャン設定,スキャン秒数,成功した時に実行される関数（引数：デバイス情報))
+        ble.scan([], 5, function(device){
+            if(device.name === "BT05"){
+                ble.connect(device.id, function(device){
+                    $("#led").change(function(){
+                        var led = $("#led").prop("checked")? 1: 0;
+                        ble.write(device.id,"FFE0","FFE1", new Uint8Array([led]).buffer);
+                        led = led? 0 : 1;
+                    });
+                }};
+            }
+        });
+    }, 6000);
+    $("#led").change(function(){ alert($("#led").prop("checked"));});
+});
+    </script>
+</head>
+<body>
+<ons-page>
+  <ons-toolbar>
+    <div class="center">Switches</div>
+  </ons-toolbar>
+
+  <ons-list>
+<!-- リストのヘッダー部分 -->
+   <ons-list-header>Settings</ons-list-header>
+<!--  リスト一つ目  -->
+    <ons-list-item>
+<!--  リスト一つ目の文章表示部分    -->
+      <div class="center">
+        LED
+      </div>
+<!--  リスト一つ目のスイッチ実装部分   -->
+      <div class="right">
+        <ons-switch id="led"></ons-switch>
+      </div>
+    </ons-list-item>
+  </ons-list>
+</ons-page>
+</body>
+</html>
